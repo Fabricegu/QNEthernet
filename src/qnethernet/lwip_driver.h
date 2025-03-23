@@ -182,6 +182,99 @@ bool driver_link_is_crossover(void);
 // Note that the data will already contain any extra ETH_PAD_SIZE bytes.
 err_t driver_output(struct pbuf *p);
 
+
+// --------------------------------------------------------------------------
+//  IEEE 1588 functions
+// --------------------------------------------------------------------------
+
+// Initializes and enables the IEEE 1588 timer and functionality. The internal
+// time is reset to zero.
+void enet_ieee1588_init();
+
+// Deinitializes and stops the IEEE 1588 timer.
+void enet_ieee1588_deinit();
+
+// Tests if the IEEE 1588 timer is enabled.
+bool enet_ieee1588_is_enabled();
+
+// Reads the IEEE 1588 timer. This returns whether successful.
+//
+// This will return false if the argument is NULL.
+bool enet_ieee1588_read_timer(struct timespec *t);
+
+// Writes the IEEE 1588 timer. This returns whether successful.
+//
+// This will return false if the argument is NULL.
+bool enet_ieee1588_write_timer(const struct timespec *t);
+
+// Adds an offset to the current timer value. Uses the read and write
+// functions under the hood. This returns whether successful.
+bool enet_ieee1588_offset_timer(int64_t ns);
+
+// Tells the driver to timestamp the next transmitted frame.
+void enet_ieee1588_timestamp_next_frame();
+
+// Returns whether an IEEE 1588 transmit timestamp is available. If available
+// and the parameter is not NULL then it is assigned to `*timestamp`. This
+// clears the timestamp state so that a subsequent call will return false.
+//
+// This function is used after sending a packet having its transmit timestamp
+// sent. Note that this only returns the latest value, so if a second
+// timestamped packet is sent before retrieving the timestamp for the first
+// then this will return the second timestamp (if already available).
+bool enet_ieee1588_read_and_clear_tx_timestamp(struct timespec *timestamp);
+
+// Directly adjust the correction increase and correction period. To adjust the
+// timer in "nanoseconds per second", see `enet_ieee1588_adjust_freq`. This
+// returns whether successful.
+//
+// This will return false if:
+// 1. The correction increment is not in the range 0-127, or
+// 2. The correction period is not in the range 0-(2^31-1).
+bool enet_ieee1588_adjust_timer(uint32_t corrInc, uint32_t corrPeriod);
+
+// Adjust the correction in nanoseconds per second. This uses
+// `enet_ieee1588_adjust_timer()` under the hood.
+bool enet_ieee1588_adjust_freq(double nsps);
+
+// Sets the channel mode for the given channel. This does not set the output
+// compare pulse modes. This returns whether successful.
+//
+// This will return false if:
+// 1. The channel is unknown,
+// 2. The mode is one of the output compare pulse modes, or
+// 3. The mode is a reserved value or unknown.
+bool enet_ieee1588_set_channel_mode(int channel, int mode);
+
+// Sets the output compare pulse mode and pulse width for the given channel.
+// This returns whether successful.
+//
+// This will return false if:
+// 1. The channel is unknown,
+// 2. The pulse width is not in the range 1-32.
+bool enet_ieee1588_set_channel_output_pulse_width(int channel,
+                                                  int pulseWidth);
+
+// Sets the channel compare value. This returns whether successful.
+//
+// This will return false for an unknown channel.
+bool enet_ieee1588_set_channel_compare_value(int channel, uint32_t value);
+
+// Gets the channel compare value. This returns whether successful.
+//
+// This will return false for an unknown channel.
+bool enet_ieee1588_get_channel_compare_value(int channel, uint32_t *value);
+
+// Retrieves and then clears the status for the given channel. This will
+// return false for an unknown channel.
+bool enet_ieee1588_get_and_clear_channel_status(int channel);
+
+// Enables or disables timer interrupt generation for a channel. This will
+// return false for an unknown channel.
+bool enet_ieee1588_set_channel_interrupt_enable(int channel, bool enable);
+
+
+
 #if QNETHERNET_ENABLE_RAW_FRAME_SUPPORT
 // Outputs a raw Ethernet frame and returns whether successful.
 //

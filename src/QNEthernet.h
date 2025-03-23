@@ -29,6 +29,8 @@
 #include "qnethernet/util/PrintUtils.h"
 #include "qnethernet_opts.h"
 
+#include "qnethernet/QNEthernetIEEE1588.h"
+
 namespace qindesign {
 namespace network {
 
