@@ -14,6 +14,10 @@
 #include <stdalign.h>
 #include <stdatomic.h>
 #include <string.h>
+// Ajouter pour L'IEEE1588
+#include <util/atomic.h>
+#include <math.h> 
+// fin Ajout
 
 #include <avr/pgmspace.h>
 #include <core_pins.h>
