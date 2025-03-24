@@ -119,6 +119,8 @@ class EthernetIEEE1588Class final {
   static EthernetIEEE1588Class instance_;
 };
 
+extern EthernetIEEE1588Class &EthernetIEEE1588;
+
 }  // namespace network
 }  // namespace qindesign
 
